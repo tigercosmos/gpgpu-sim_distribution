@@ -40,6 +40,13 @@
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
+int SP_COUNTER = 0;
+int SFU_COUNTER = 0;
+int LD_COUNTER = 0;
+int ST_COUNTER = 0;
+int BRA_COUNTER = 0;
+int OTHER_COUNTER = 0;
+
 static int sg_argc = 3;
 static const char *sg_argv[] = {"", "-config", "gpgpusim.config"};
 
@@ -191,6 +198,14 @@ void gpgpu_context::exit_simulation() {
   fflush(stdout);
   sem_wait(&(the_gpgpusim->g_sim_signal_exit));
   printf("GPGPU-Sim: simulation thread signaled exit\n");
+
+  printf("XXX SP: %d\n", SP_COUNTER);
+  printf("XXX SFU: %d\n", SFU_COUNTER);
+  printf("XXX LD: %d\n", LD_COUNTER);
+  printf("XXX ST: %d\n", ST_COUNTER);
+  printf("XXX BRA: %d\n", BRA_COUNTER);
+  printf("XXX OTHER: %d\n", OTHER_COUNTER);
+
   fflush(stdout);
 }
 
