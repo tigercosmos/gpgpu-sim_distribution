@@ -3018,6 +3018,9 @@ void cuda_runtime_api::extract_ptx_files_using_cuobjdump(CUctx_st *context) {
     while (std::getline(infile, line)) {
       // int pos = line.find(std::string(get_app_binary_name(app_binary)));
       const char *ptx_file = line.c_str();
+      if(access(ptx_file, F_OK) != -1) {
+        continue;
+      }
       printf("Extracting specific PTX file named %s \n", ptx_file);
       snprintf(command, 1000, "$CUDA_INSTALL_PATH/bin/cuobjdump -xptx %s %s",
                ptx_file, app_binary.c_str());

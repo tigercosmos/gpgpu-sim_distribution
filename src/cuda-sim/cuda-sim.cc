@@ -275,6 +275,9 @@ void function_info::ptx_assemble() {
   // get the instructions into instruction memory...
   unsigned num_inst = m_instructions.size();
   m_instr_mem_size = MAX_INST_SIZE * (num_inst + 1);
+  if(m_instr_mem) {
+	  delete m_instr_mem;
+  }
   m_instr_mem = new ptx_instruction *[m_instr_mem_size];
 
   printf("GPGPU-Sim PTX: instruction assembly for function \'%s\'... ",

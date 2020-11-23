@@ -1739,7 +1739,7 @@ void shader_core_ctx::execute() {
         OTHER_COUNTER++;
         op_str = "SPECIAL_OP";
       }
-      printf("XXX INST OP: %s\n", op_str.c_str());
+      //printf("XXX INST OP: %s\n", op_str.c_str());
       bool schedule_wb_now = !m_fu[n]->stallable();
       int resbus = -1;
       if (schedule_wb_now &&

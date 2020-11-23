@@ -1486,6 +1486,7 @@ function_info::function_info(int entry_point, gpgpu_context *ctx) {
   m_entry_point = (entry_point == 1) ? true : false;
   m_extern = (entry_point == 2) ? true : false;
   num_reconvergence_pairs = 0;
+  m_instr_mem = NULL;
   m_symtab = NULL;
   m_assembled = false;
   m_return_var_sym = NULL;
