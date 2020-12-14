@@ -994,9 +994,70 @@ void shader_core_ctx::fetch() {
 
 void exec_shader_core_ctx::func_exec_inst(warp_inst_t &inst) {
   execute_warp_inst_t(inst);
+  std::string op_str;
+  auto op = inst.op;
+  if (op == NO_OP) {
+    op_str = "NO_OP";
+  } else if (op == ALU_OP) {
+    op_str = "ALU_OP";
+    SP_COUNTER += 1;
+  } else if (op == SFU_OP) {
+    op_str = "SFU_OP";
+    SFU_COUNTER += 1;
+  } else if (op == TENSOR_CORE_OP) {
+    op_str = "TENSOR_CORE_OP";
+    OTHER_COUNTER += 1;
+  } else if (op == DP_OP) {
+    op_str = "DP_OP";
+    OTHER_COUNTER++;
+  } else if (op == SP_OP) {
+    op_str = "SP_OP";
+    SP_COUNTER++;
+  } else if (op == INTP_OP) {
+    op_str = "INTP_OP";
+    OTHER_COUNTER++;
+  } else if (op == ALU_SFU_OP) {
+    op_str = "ALU_SFU_OP";
+    SFU_COUNTER++;
+  } else if (op == LOAD_OP) {
+    op_str = "LOAD_OP";
+    LD_COUNTER++;
+  } else if (op == TENSOR_CORE_LOAD_OP) {
+    op_str = "TENSOR_CORE_LOAD_OP";
+    OTHER_COUNTER++;
+  } else if (op == TENSOR_CORE_STORE_OP) {
+    op_str = "TENSOR_CORE_STORE_OP";
+    OTHER_COUNTER++;
+  } else if (op == STORE_OP) {
+    op_str = "STORE_OP";
+    ST_COUNTER++;
+  } else if (op == BRANCH_OP) {
+    op_str = "BRANCH_OP";
+    BRA_COUNTER++;
+  } else if (op == BARRIER_OP) {
+    op_str = "BARRIER_OP";
+    OTHER_COUNTER++;
+  } else if (op == MEMORY_BARRIER_OP) {
+    op_str = "MEMORY_BARRIER_OP";
+    OTHER_COUNTER++;
+  } else if (op == CALL_OPS) {
+    op_str = "CALL_OPS";
+    OTHER_COUNTER++;
+  } else if (op == RET_OPS) {
+    op_str = "RET_OPS";
+    OTHER_COUNTER++;
+  } else if (op == EXIT_OPS) {
+    op_str = "EXIT_OPS";
+    OTHER_COUNTER++;
+  } else {
+    OTHER_COUNTER++;
+    op_str = "SPECIAL_OP";
+  }
+  //printf("XXX INST OP: %s\n", op_str.c_str());
   if (inst.is_load() || inst.is_store()) {
     inst.generate_mem_accesses();
     // inst.print_m_accessq();
+
   }
 }
 
@@ -1680,66 +1741,6 @@ void shader_core_ctx::execute() {
     register_set &issue_inst = m_pipeline_reg[issue_port];
     warp_inst_t **ready_reg = issue_inst.get_ready();
     if (issue_inst.has_ready() && m_fu[n]->can_issue(**ready_reg)) {
-      std::string op_str;
-      auto op = (**ready_reg).op;
-      if (op == NO_OP) {
-        op_str = "NO_OP";
-      } else if (op == ALU_OP) {
-        op_str = "ALU_OP";
-        SP_COUNTER += 1;
-      } else if (op == SFU_OP) {
-        op_str = "SFU_OP";
-        SFU_COUNTER += 1;
-      } else if (op == TENSOR_CORE_OP) {
-        op_str = "TENSOR_CORE_OP";
-        OTHER_COUNTER += 1;
-      } else if (op == DP_OP) {
-        op_str = "DP_OP";
-        OTHER_COUNTER++;
-      } else if (op == SP_OP) {
-        op_str = "SP_OP";
-        SP_COUNTER++;
-      } else if (op == INTP_OP) {
-        op_str = "INTP_OP";
-        OTHER_COUNTER++;
-      } else if (op == ALU_SFU_OP) {
-        op_str = "ALU_SFU_OP";
-        SFU_COUNTER++;
-      } else if (op == LOAD_OP) {
-        op_str = "LOAD_OP";
-        LD_COUNTER++;
-      } else if (op == TENSOR_CORE_LOAD_OP) {
-        op_str = "TENSOR_CORE_LOAD_OP";
-        OTHER_COUNTER++;
-      } else if (op == TENSOR_CORE_STORE_OP) {
-        op_str = "TENSOR_CORE_STORE_OP";
-        OTHER_COUNTER++;
-      } else if (op == STORE_OP) {
-        op_str = "STORE_OP";
-        ST_COUNTER++;
-      } else if (op == BRANCH_OP) {
-        op_str = "BRANCH_OP";
-        BRA_COUNTER++;
-      } else if (op == BARRIER_OP) {
-        op_str = "BARRIER_OP";
-        OTHER_COUNTER++;
-      } else if (op == MEMORY_BARRIER_OP) {
-        op_str = "MEMORY_BARRIER_OP";
-        OTHER_COUNTER++;
-      } else if (op == CALL_OPS) {
-        op_str = "CALL_OPS";
-        OTHER_COUNTER++;
-      } else if (op == RET_OPS) {
-        op_str = "RET_OPS";
-        OTHER_COUNTER++;
-      } else if (op == EXIT_OPS) {
-        op_str = "EXIT_OPS";
-        OTHER_COUNTER++;
-      } else {
-        OTHER_COUNTER++;
-        op_str = "SPECIAL_OP";
-      }
-      //printf("XXX INST OP: %s\n", op_str.c_str());
       bool schedule_wb_now = !m_fu[n]->stallable();
       int resbus = -1;
       if (schedule_wb_now &&
@@ -2108,6 +2109,7 @@ bool ldst_unit::memory_cycle(warp_inst_t &inst,
   const mem_access_t &access = inst.accessq_back();
 
   bool bypassL1D = false;
+  //bool bypassL1D = true;
   if (CACHE_GLOBAL == inst.cache_op || (m_L1D == NULL)) {
     bypassL1D = true;
   } else if (inst.space.is_global()) {  // global memory access
